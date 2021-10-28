@@ -9,7 +9,6 @@ public class EchoClient {
 
 	public static void main(String[] args) throws IOException {
 		String server;
-		int i;
 
 		// Use "127.0.0.1", i.e., localhost, if no server is specified.
 		if (args.length == 0) {
@@ -30,20 +29,41 @@ public class EchoClient {
 			InputStream streamFromSocket = socket.getInputStream();
 			OutputStream streamToSocket = socket.getOutputStream();
 
-			// while loop that continuously reads one byte from stdin,
-			// writes one byte to socket, writes one byte from socket to
-			// stdout.
-			while((i = keyboardReader.read()) != -1)
-			{
-				// read one byte from stdin, and write to socket
-				streamToSocket.write(i);
-				streamToSocket.flush();
+			Thread toServerThread = new Thread(() -> {
+				int i;
+				try{
+					while((i = keyboardReader.read()) != -1)
+					{
+						// read one byte from stdin, and write to socket
+						streamToSocket.write(i);
+						streamToSocket.flush();
 
-				// read one byte from socket and write to stdout
-				i = streamFromSocket.read();
-				output.write(i);
-				output.flush();;
-			}
+					}
+				} catch (Exception e){
+					System.out.println(e);
+				}
+			});
+
+			Thread fromServerThread = new Thread(() -> {
+				int i;
+				try{
+					while((i = streamFromSocket.read()) != -1)
+					{
+						// read one byte from socket and write to stdout
+						output.write(i);
+						output.flush();;
+					}
+				} catch (Exception e){
+					System.out.println(e);
+				}
+			});
+
+			toServerThread.start();
+			fromServerThread.start();
+
+			toServerThread.join();
+			fromServerThread.join();
+
 
 			socket.shutdownOutput();
 
@@ -57,6 +77,8 @@ public class EchoClient {
 		} catch (IOException ioe) {
 			System.out.println("We caught an unexpected exception");
 			System.err.println(ioe);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 	}
 }

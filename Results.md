@@ -1,11 +1,20 @@
 # Experimental results
 
-_Briefly (you don't need to write a lot) document the results of your
-experiments with throwing a bunch of clients at your server, as described
-in the lab write-up. You should probably delete or incorporate this text
-into your write-up._
+We ran our code on a Dell Optiplex 9020 Dungeon Computer.
+Our implementation had every client connection running on a separate thread on the server; whereas on the client, the input was handled on one thread while the output was handled on another. 
 
-_You should indicate here what variations you tried (every connection gets
-a new thread, using a threadpool of size X, etc., etc.), and what the
-results were like when you spun up a bunch of threads that send
-decent-sized files to the server._
+Running stress.bat on words.txt gave us the following results.
+
+**Single threaded:**
+
+13s to do 25 runs of `words.txt`
+
+27s to do 50 runs of `words.txt`
+
+**Multithreaded**
+
+4s to do 25 runs of `words.txt`
+
+9s to do 50 runs of `words.txt`
+
+The current setup obviously benefits from the use of threads to handle client server connections concurrently. 

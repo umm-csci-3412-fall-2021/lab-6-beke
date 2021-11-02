@@ -29,23 +29,6 @@ public class EchoClient {
 			InputStream streamFromSocket = socket.getInputStream();
 			OutputStream streamToSocket = socket.getOutputStream();
 
-
-
-			Thread fromServerThread = new Thread(() -> {
-				int i;
-				try{
-					while((i = streamFromSocket.read()) != -1)
-					{
-						// read one byte from socket and write to stdout
-						output.write(i);
-						output.flush();;
-					}
-					socket.shutdownOutput();
-				} catch (Exception e){
-					System.out.println(e);
-				}
-			});
-
 			Thread toServerThread = new Thread(() -> {
 				int i;
 				try{
@@ -54,9 +37,23 @@ public class EchoClient {
 						// read one byte from stdin, and write to socket
 						streamToSocket.write(i);
 						streamToSocket.flush();
-
 					}
-					socket.shutdownInput();
+					socket.shutdownOutput();
+
+				} catch (Exception e){
+					System.out.println(e);
+				}
+			});
+
+			Thread fromServerThread = new Thread(() -> {
+				int i;
+				try{
+					while((i = streamFromSocket.read()) != -1)
+					{
+						// read one byte from socket and write to stdout
+						output.write(i);
+						output.flush();
+					}
 				} catch (Exception e){
 					System.out.println(e);
 				}
